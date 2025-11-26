@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.smartapartment.smartapartment.mapper.RoomMapper">
+
+    <select id="selectPage" resultType="org.smartapartment.smartapartment.entity.Room">
+        select
+            r.id,
+            r.building_id as buildingId,
+            b.building_name as buildingName,
+            r.room_number as roomNumber,
+            r.floor,
+            r.room_type as roomType,
+            r.total_beds as totalBeds,
+            r.available_beds as availableBeds,
+            r.area,
+            r.price,
+            r.facilities,
+            r.room_status as roomStatus,
+            r.description,
+            r.deleted,
+            r.create_time as createTime,
+            r.update_time as updateTime
+        from
+            room r
+        left join
+            building b on r.building_id = b.id
+        <where>
+            r.deleted = 0
+            <if test="buildingId != null and buildingId != ''">
+                and r.building_id = #{buildingId}
+            </if>
+            <if test="roomNumber != null and roomNumber != ''">
+                and r.room_number like concat('%', #{roomNumber}, '%')
+            </if>
+            <if test="roomStatus != null and roomStatus != ''">
+                and r.room_status = #{roomStatus}
+            </if>
+        </where>
+        order by r.create_time desc
+    </select>
+
+    <select id="selectAvailableRooms" resultType="org.smartapartment.smartapartment.entity.Room">
+        select
+            r.id,
+            r.building_id as buildingId,
+            b.building_name as buildingName,
+            r.room_number as roomNumber,
+            r.floor,
+            r.room_type as roomType,
+            r.total_beds as totalBeds,
+            r.available_beds as availableBeds,
+            r.area,
+            r.price,
+            r.facilities,
+            r.room_status as roomStatus,
+            r.description,
+            r.deleted,
+            r.create_time as createTime,
+            r.update_time as updateTime
+        from
+            room r
+        left join
+            building b on r.building_id = b.id
+        <where>
+            r.deleted = 0
+            and r.available_beds > 0
+            <if test="buildingId != null">
+                and r.building_id = #{buildingId}
+            </if>
+            <if test="roomType != null">
+                and r.room_type = #{roomType}
+            </if>
+        </where>
+        order by r.room_number
+    </select>
+
+    <select id="selectById" resultType="org.smartapartment.smartapartment.entity.Room">
+        SELECT 
+            r.id,
+            r.building_id as buildingId,
+            b.building_name as buildingName,
+            r.room_number as roomNumber,
+            r.floor,
+            r.room_type as roomType,
+            r.total_beds as totalBeds,
+            r.available_beds as availableBeds,
+            r.area,
+            r.price,
+            r.facilities,
+            r.room_status as roomStatus,
+            r.description,
+            r.deleted,
+            r.create_time as createTime,
+            r.update_time as updateTime
+        FROM room r
+        LEFT JOIN building b ON r.building_id = b.id
+        WHERE r.id = #{id} AND r.deleted = 0
+    </select>
+
+    <insert id="insert" parameterType="org.smartapartment.smartapartment.entity.Room"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO room (
+            building_id,
+            floor,
+            room_number,
+            room_type,
+            total_beds,
+            available_beds,
+            room_status,
+            create_time,
+            update_time,
+            deleted
+        ) VALUES (
+            #{buildingId},
+            #{floor},
+            #{roomNumber},
+            #{roomType},
+            #{totalBeds},
+            #{availableBeds},
+            #{roomStatus},
+            NOW(),
+            NOW(),
+            0
+        )
+    </insert>
+
+    <update id="updateById">
+        UPDATE room
+        SET building_id = #{buildingId},
+            floor = #{floor},
+            room_number = #{roomNumber},
+            room_type = #{roomType},
+            total_beds = #{totalBeds},
+            available_beds = #{availableBeds},
+            room_status = #{roomStatus},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteById">
+        UPDATE room
+        SET deleted = 1, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 统计房间总数 -->
+    <select id="countTotal" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM room WHERE deleted = 0
+    </select>
+    
+    <!-- 统计各状态房间数量 -->
+    <select id="countByStatus" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM room 
+        WHERE deleted = 0 AND room_status = #{status}
+    </select>
+    
+    <!-- 统计总床位数 -->
+    <select id="countTotalBeds" resultType="java.lang.Long">
+        SELECT IFNULL(SUM(total_beds), 0) FROM room WHERE deleted = 0
+    </select>
+    
+    <!-- 统计剩余床位数 -->
+    <select id="countAvailableBeds" resultType="java.lang.Long">
+        SELECT IFNULL(SUM(available_beds), 0) FROM room WHERE deleted = 0
+    </select>
+
+</mapper>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.smartapartment.smartapartment.mapper.TransferApplicationMapper">
+
+    <select id="selectPage" resultType="org.smartapartment.smartapartment.entity.TransferApplication">
+        SELECT
+            ta.*,
+            u.real_name as studentName,
+            u.student_number as studentNumber,
+            cb.building_name as currentBuildingName,
+            cr.room_number as currentRoomNumber,
+            cbed.bed_number as currentBedNumber,
+            tb.building_name as targetBuildingName,
+            tr.room_number as targetRoomNumber,
+            abed.bed_number as assignedBedNumber
+        FROM transfer_application ta
+        LEFT JOIN sys_user u ON ta.student_id = u.id
+        LEFT JOIN building cb ON ta.current_building_id = cb.id
+        LEFT JOIN room cr ON ta.current_room_id = cr.id
+        LEFT JOIN bed cbed ON ta.current_bed_id = cbed.id
+        LEFT JOIN building tb ON ta.target_building_id = tb.id
+        LEFT JOIN room tr ON ta.target_room_id = tr.id
+        LEFT JOIN bed abed ON ta.assigned_bed_id = abed.id
+        <where>
+            ta.deleted = 0
+            <if test="studentId != null">
+                AND ta.student_id = #{studentId}
+            </if>
+            <if test="status != null">
+                AND ta.status = #{status}
+            </if>
+        </where>
+        ORDER BY ta.create_time DESC
+    </select>
+
+    <select id="selectById" resultType="org.smartapartment.smartapartment.entity.TransferApplication">
+        SELECT
+            ta.*,
+            u.real_name as studentName,
+            u.student_number as studentNumber,
+            cb.building_name as currentBuildingName,
+            cr.room_number as currentRoomNumber,
+            cbed.bed_number as currentBedNumber,
+            tb.building_name as targetBuildingName,
+            tr.room_number as targetRoomNumber,
+            abed.bed_number as assignedBedNumber
+        FROM transfer_application ta
+        LEFT JOIN sys_user u ON ta.student_id = u.id
+        LEFT JOIN building cb ON ta.current_building_id = cb.id
+        LEFT JOIN room cr ON ta.current_room_id = cr.id
+        LEFT JOIN bed cbed ON ta.current_bed_id = cbed.id
+        LEFT JOIN building tb ON ta.target_building_id = tb.id
+        LEFT JOIN room tr ON ta.target_room_id = tr.id
+        LEFT JOIN bed abed ON ta.assigned_bed_id = abed.id
+        WHERE ta.id = #{id} AND ta.deleted = 0
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO transfer_application (
+            student_id,
+            check_in_application_id,
+            current_building_id,
+            current_room_id,
+            current_bed_id,
+            target_building_id,
+            target_room_id,
+            target_room_type,
+            reason,
+            description,
+            status,
+            create_time,
+            update_time,
+            deleted
+        ) VALUES (
+            #{studentId},
+            #{checkInApplicationId},
+            #{currentBuildingId},
+            #{currentRoomId},
+            #{currentBedId},
+            #{targetBuildingId},
+            #{targetRoomId},
+            #{targetRoomType},
+            #{reason},
+            #{description},
+            1,
+            NOW(),
+            NOW(),
+            0
+        )
+    </insert>
+
+    <update id="updateById">
+        UPDATE transfer_application
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="approverId != null">approver_id = #{approverId},</if>
+            <if test="approverName != null">approver_name = #{approverName},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="approveTime != null">approve_time = #{approveTime},</if>
+            <if test="assignedBedId != null">assigned_bed_id = #{assignedBedId},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteById">
+        UPDATE transfer_application
+        SET deleted = 1, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+</mapper>

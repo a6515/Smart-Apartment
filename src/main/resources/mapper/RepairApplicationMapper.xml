@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.smartapartment.smartapartment.mapper.RepairApplicationMapper">
+
+    <select id="selectPage" resultType="org.smartapartment.smartapartment.entity.RepairApplication">
+        SELECT
+            ra.id,
+            ra.student_id as studentId,
+            ra.student_name as studentName,
+            ra.phone,
+            ra.room_id as roomId,
+            ra.repair_type as repairType,
+            ra.repair_title as repairTitle,
+            ra.repair_content as repairContent,
+            ra.repair_images as repairImages,
+            ra.repair_status as repairStatus,
+            ra.urgency_level as urgencyLevel,
+            ra.handler_id as handlerId,
+            ra.handler_name as handlerName,
+            ra.accept_time as acceptTime,
+            ra.finish_time as finishTime,
+            ra.repair_remark as repairRemark,
+            ra.satisfaction_rating as satisfactionRating,
+            ra.satisfaction_comment as satisfactionComment,
+            ra.create_time as createTime,
+            ra.update_time as updateTime,
+            b.building_name as buildingName,
+            r.room_number as roomNumber
+        FROM
+            repair_application ra
+        LEFT JOIN room r ON ra.room_id = r.id
+        LEFT JOIN building b ON r.building_id = b.id
+        <where>
+            ra.deleted = 0
+            <if test="repairType != null and repairType != ''">
+                AND ra.repair_type = #{repairType}
+            </if>
+            <if test="repairTypes != null and repairTypes.size() > 0">
+                AND ra.repair_type IN
+                <foreach collection="repairTypes" item="type" open="(" separator="," close=")">
+                    #{type}
+                </foreach>
+            </if>
+            <if test="status != null and status != ''">
+                AND ra.repair_status = #{status}
+            </if>
+            <if test="statuses != null and statuses.size() > 0">
+                AND ra.repair_status IN
+                <foreach collection="statuses" item="status" open="(" separator="," close=")">
+                    #{status}
+                </foreach>
+            </if>
+            <if test="studentId != null and studentId != ''">
+                AND ra.student_id = #{studentId}
+            </if>
+        </where>
+        ORDER BY ra.create_time DESC
+    </select>
+
+    <select id="selectById" resultType="org.smartapartment.smartapartment.entity.RepairApplication">
+        SELECT * FROM repair_application WHERE id = #{id} AND deleted = 0
+    </select>
+
+    <insert id="insert">
+        INSERT INTO repair_application (
+            student_id, student_name, phone, room_id, 
+            repair_type, repair_title, repair_content, repair_images,
+            repair_status, urgency_level, deleted, create_time, update_time
+        )
+        VALUES (
+            #{studentId}, #{studentName}, #{phone}, #{roomId},
+            #{repairType}, #{repairTitle}, #{repairContent}, #{repairImages},
+            #{repairStatus}, #{urgencyLevel}, 0, NOW(), NOW()
+        )
+    </insert>
+
+    <update id="updateById">
+        UPDATE repair_application
+        <set>
+            <if test="repairStatus != null">repair_status = #{repairStatus},</if>
+            <if test="handlerId != null">handler_id = #{handlerId},</if>
+            <if test="handlerName != null">handler_name = #{handlerName},</if>
+            <if test="acceptTime != null">accept_time = #{acceptTime},</if>
+            <if test="finishTime != null">finish_time = #{finishTime},</if>
+            <if test="repairRemark != null">repair_remark = #{repairRemark},</if>
+            <if test="satisfactionRating != null">satisfaction_rating = #{satisfactionRating},</if>
+            <if test="satisfactionComment != null">satisfaction_comment = #{satisfactionComment},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteById">
+        UPDATE repair_application
+        SET deleted = 1, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 统计待处理的报修数量 -->
+    <select id="countPending" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM repair_application 
+        WHERE repair_status = 1 AND deleted = 0
+    </select>
+    
+    <!-- 按报修类型统计数量 -->
+    <select id="countByType" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM repair_application 
+        WHERE repair_type = #{repairType} AND deleted = 0
+    </select>
+
+</mapper>

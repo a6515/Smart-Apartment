@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.smartapartment.smartapartment.mapper.BuildingMapper">
+    
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="org.smartapartment.smartapartment.entity.Building">
+        <id column="id" property="id"/>
+        <result column="building_name" property="buildingName"/>
+        <result column="building_code" property="buildingCode"/>
+        <result column="building_type" property="buildingType"/>
+        <result column="floors" property="floors"/>
+        <result column="total_rooms" property="totalRooms"/>
+        <result column="address" property="address"/>
+        <result column="manager_id" property="managerId"/>
+        <result column="manager_name" property="managerName"/>
+        <result column="manager_phone" property="managerPhone"/>
+        <result column="description" property="description"/>
+        <result column="status" property="status"/>
+        <result column="deleted" property="deleted"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+    
+    <!-- 分页查询楼宇列表 -->
+    <select id="selectPage" resultMap="BaseResultMap">
+        SELECT * FROM building 
+        WHERE deleted = 0
+        <if test="buildingName != null and buildingName != ''">
+            AND building_name LIKE CONCAT('%', #{buildingName}, '%')
+        </if>
+        <if test="buildingType != null">
+            AND building_type = #{buildingType}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+    
+    <!-- 根据ID查询 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM building 
+        WHERE id = #{id} 
+        AND deleted = 0
+    </select>
+    
+    <!-- 插入楼宇 -->
+    <insert id="insert" parameterType="org.smartapartment.smartapartment.entity.Building" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO building (
+            building_name, building_code, building_type, floors, total_rooms, 
+            address, manager_id, manager_name, manager_phone, description, status, 
+            create_time, update_time
+        ) VALUES (
+            #{buildingName}, #{buildingCode}, #{buildingType}, #{floors}, #{totalRooms},
+            #{address}, #{managerId}, #{managerName}, #{managerPhone}, #{description}, #{status},
+            NOW(), NOW()
+        )
+    </insert>
+    
+    <!-- 更新楼宇 -->
+    <update id="updateById">
+        UPDATE building
+        <set>
+            <if test="buildingName != null">building_name = #{buildingName},</if>
+            <if test="buildingCode != null">building_code = #{buildingCode},</if>
+            <if test="buildingType != null">building_type = #{buildingType},</if>
+            <if test="floors != null">floors = #{floors},</if>
+            <if test="totalRooms != null">total_rooms = #{totalRooms},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="managerId != null">manager_id = #{managerId},</if>
+            <if test="managerName != null">manager_name = #{managerName},</if>
+            <if test="managerPhone != null">manager_phone = #{managerPhone},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="status != null">status = #{status},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+        AND deleted = 0
+    </update>
+    
+    <!-- 删除楼宇（逻辑删除） -->
+    <update id="deleteById">
+        UPDATE building 
+        SET deleted = 1, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+    
+    <!-- 统计楼宇总数 -->
+    <select id="countTotal" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM building WHERE deleted = 0
+    </select>
+    
+</mapper>

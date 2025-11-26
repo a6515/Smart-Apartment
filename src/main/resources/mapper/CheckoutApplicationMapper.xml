@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.smartapartment.smartapartment.mapper.CheckoutApplicationMapper">
+
+    <select id="selectPage" resultType="org.smartapartment.smartapartment.entity.CheckoutApplication">
+        SELECT
+            ca.*,
+            u.real_name as studentName,
+            u.student_number as studentNumber,
+            b.building_name as buildingName,
+            r.room_number as roomNumber,
+            bed.bed_number as bedNumber
+        FROM checkout_application ca
+        LEFT JOIN sys_user u ON ca.student_id = u.id
+        LEFT JOIN building b ON ca.building_id = b.id
+        LEFT JOIN room r ON ca.room_id = r.id
+        LEFT JOIN bed ON ca.bed_id = bed.id
+        <where>
+            ca.deleted = 0
+            <if test="studentId != null">
+                AND ca.student_id = #{studentId}
+            </if>
+            <if test="status != null">
+                AND ca.status = #{status}
+            </if>
+        </where>
+        ORDER BY ca.create_time DESC
+    </select>
+
+    <select id="selectById" resultType="org.smartapartment.smartapartment.entity.CheckoutApplication">
+        SELECT
+            ca.*,
+            u.real_name as studentName,
+            u.student_number as studentNumber,
+            b.building_name as buildingName,
+            r.room_number as roomNumber,
+            bed.bed_number as bedNumber
+        FROM checkout_application ca
+        LEFT JOIN sys_user u ON ca.student_id = u.id
+        LEFT JOIN building b ON ca.building_id = b.id
+        LEFT JOIN room r ON ca.room_id = r.id
+        LEFT JOIN bed ON ca.bed_id = bed.id
+        WHERE ca.id = #{id} AND ca.deleted = 0
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO checkout_application (
+            student_id,
+            check_in_application_id,
+            building_id,
+            room_id,
+            bed_id,
+            reason,
+            description,
+            checkout_date,
+            status,
+            create_time,
+            update_time,
+            deleted
+        ) VALUES (
+            #{studentId},
+            #{checkInApplicationId},
+            #{buildingId},
+            #{roomId},
+            #{bedId},
+            #{reason},
+            #{description},
+            #{checkoutDate},
+            1,
+            NOW(),
+            NOW(),
+            0
+        )
+    </insert>
+
+    <update id="updateById">
+        UPDATE checkout_application
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="approverId != null">approver_id = #{approverId},</if>
+            <if test="approverName != null">approver_name = #{approverName},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="approveTime != null">approve_time = #{approveTime},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteById">
+        UPDATE checkout_application
+        SET deleted = 1, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+</mapper>

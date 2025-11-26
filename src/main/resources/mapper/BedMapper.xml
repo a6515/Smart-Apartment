@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.smartapartment.smartapartment.mapper.BedMapper">
+
+    <select id="selectByRoomId" resultType="org.smartapartment.smartapartment.entity.Bed">
+        SELECT * FROM bed
+        WHERE room_id = #{roomId}
+        AND deleted = 0
+        ORDER BY bed_number
+    </select>
+
+    <select id="selectById" resultType="org.smartapartment.smartapartment.entity.Bed">
+        SELECT * FROM bed
+        WHERE id = #{id}
+        AND deleted = 0
+    </select>
+
+    <insert id="insert" parameterType="org.smartapartment.smartapartment.entity.Bed"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO bed (
+            room_id, bed_number, bed_status, student_id, student_name,
+            check_in_time, create_time, update_time, deleted
+        ) VALUES (
+            #{roomId}, #{bedNumber}, #{bedStatus}, #{studentId}, #{studentName},
+            #{checkInTime}, NOW(), NOW(), 0
+        )
+    </insert>
+
+    <update id="updateById">
+        UPDATE bed
+        SET room_id = #{roomId},
+            bed_number = #{bedNumber},
+            bed_status = #{bedStatus},
+            student_id = #{studentId},
+            student_name = #{studentName},
+            check_in_time = #{checkInTime},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteById">
+        UPDATE bed
+        SET deleted = 1, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectAvailableByRoomId" resultType="org.smartapartment.smartapartment.entity.Bed">
+        SELECT * FROM bed
+        WHERE room_id = #{roomId}
+        AND bed_status = 1
+        AND deleted = 0
+        ORDER BY bed_number
+    </select>
+
+</mapper>

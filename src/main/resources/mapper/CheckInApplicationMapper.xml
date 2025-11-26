@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.smartapartment.smartapartment.mapper.CheckInApplicationMapper">
+
+    <select id="selectPage" resultType="org.smartapartment.smartapartment.entity.CheckInApplication">
+        select
+            cia.id,
+            cia.student_id as studentId,
+            cia.preferred_building_id as preferredBuildingId,
+            cia.preferred_room_type as preferredRoomType,
+            cia.application_reason as applicationReason,
+            cia.application_status as applicationStatus,
+            cia.application_status as status,
+            cia.assigned_room_id as assignedRoomId,
+            cia.assigned_bed_id as assignedBedId,
+            cia.approver_id as approverId,
+            cia.approver_name as approverName,
+            cia.approve_time as approveTime,
+            cia.approve_remark as approveRemark,
+            cia.check_in_time as checkInTime,
+            cia.deleted,
+            cia.create_time as createTime,
+            cia.update_time as updateTime,
+            u.real_name as studentName,
+            u.student_number as studentNumber,
+            b.building_name as buildingName,
+            r.room_number as roomNumber,
+            r.floor as floor,
+            bed.bed_number as bedNumber
+        from
+            check_in_application cia
+        left join
+            sys_user u on cia.student_id = u.id
+        left join
+            room r on cia.assigned_room_id = r.id
+        left join
+            building b on r.building_id = b.id
+        left join
+            bed bed on cia.assigned_bed_id = bed.id
+        <where>
+            cia.deleted = 0
+            <if test="studentName != null and studentName != ''">
+                and u.real_name like concat('%', #{studentName}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                and cia.application_status = #{status}
+            </if>
+            <if test="studentId != null and studentId != ''">
+                and cia.student_id = #{studentId}
+            </if>
+        </where>
+        order by cia.create_time desc
+    </select>
+
+    <insert id="insert" parameterType="org.smartapartment.smartapartment.entity.CheckInApplication" 
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO check_in_application (
+            student_id,
+            student_name,
+            student_number,
+            phone,
+            gender,
+            department,
+            major,
+            class_name,
+            preferred_building_id,
+            preferred_room_type,
+            application_reason,
+            application_status,
+            create_time,
+            update_time,
+            deleted
+        ) VALUES (
+            #{studentId},
+            #{studentName},
+            #{studentNumber},
+            #{phone},
+            #{gender},
+            #{department},
+            #{major},
+            #{className},
+            #{preferredBuildingId},
+            #{preferredRoomType},
+            #{applicationReason},
+            #{applicationStatus},
+            NOW(),
+            NOW(),
+            0
+        )
+    </insert>
+
+    <select id="selectById" resultType="org.smartapartment.smartapartment.entity.CheckInApplication">
+        SELECT 
+            id,
+            student_id as studentId,
+            student_name as studentName,
+            student_number as studentNumber,
+            preferred_building_id as preferredBuildingId,
+            preferred_room_type as preferredRoomType,
+            application_reason as applicationReason,
+            application_status as applicationStatus,
+            application_status as status,
+            assigned_room_id as assignedRoomId,
+            assigned_bed_id as assignedBedId,
+            approver_id as approverId,
+            approver_name as approverName,
+            approve_time as approveTime,
+            check_in_time as checkInTime,
+            deleted,
+            create_time as createTime,
+            update_time as updateTime
+        FROM check_in_application
+        WHERE id = #{id}
+        AND deleted = 0
+    </select>
+
+    <update id="updateById">
+        UPDATE check_in_application
+        <set>
+            <if test="applicationStatus != null">application_status = #{applicationStatus},</if>
+            <if test="assignedRoomId != null">assigned_room_id = #{assignedRoomId},</if>
+            <if test="assignedBedId != null">assigned_bed_id = #{assignedBedId},</if>
+            <if test="approverId != null">approver_id = #{approverId},</if>
+            <if test="approverName != null">approver_name = #{approverName},</if>
+            <if test="approveTime != null">approve_time = #{approveTime},</if>
+            <if test="approveRemark != null">approve_remark = #{approveRemark},</if>
+            <if test="checkInTime != null">check_in_time = #{checkInTime},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteById">
+        UPDATE check_in_application
+        SET deleted = 1, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectRoommatesByRoomId" resultType="java.util.HashMap">
+        SELECT 
+            u.real_name as realName,
+            u.student_number as studentNumber,
+            u.phone,
+            u.email,
+            cia.assigned_bed_id as bedId,
+            bed.bed_number as bedNumber
+        FROM check_in_application cia
+        INNER JOIN sys_user u ON cia.student_id = u.id
+        LEFT JOIN bed ON cia.assigned_bed_id = bed.id
+        WHERE cia.assigned_room_id = #{roomId}
+        AND cia.application_status = 4
+        AND cia.deleted = 0
+        ORDER BY bed.bed_number
+    </select>
+
+    <!-- 统计待审批的申请数量 -->
+    <select id="countPending" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM check_in_application 
+        WHERE application_status = 1 AND deleted = 0
+    </select>
+
+</mapper>
