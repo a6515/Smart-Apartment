@@ -44,10 +44,23 @@ export const deleteRoom = (id) => {
 }
 
 // 获取可用房间列表
-export const getAvailableRooms = (buildingId, roomType) => {
+export const getAvailableRooms = (buildingId, roomType, floorNumber, bedStatus) => {
+  console.log('【API调用】参数:', { buildingId, roomType, floorNumber, bedStatus })
   return request({
     url: '/room/available',
     method: 'get',
-    params: { buildingId, roomType }
+    params: { 
+      buildingId, 
+      roomType,
+      floorNumber,
+      bedStatus
+    },
+    // 调试信息，可在Network面板查看
+    headers: {
+      'X-Debug-Info': JSON.stringify({ buildingId, roomType, floorNumber, bedStatus })
+    }
+  }).catch((error) => {
+    console.error('【API调用】错误:', error)
+    throw error
   })
 }

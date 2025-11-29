@@ -19,7 +19,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/statistics")
 @RequiredArgsConstructor
-@RequireRole({1, 2}) // 管理员和宿管可访问
 public class StatisticsController {
     
     private final StatisticsService statisticsService;
@@ -33,6 +32,7 @@ public class StatisticsController {
     
     @Operation(summary = "获取房间状态统计")
     @GetMapping("/room-status")
+    @RequireRole({1, 2}) // 管理员和宿管可访问
     public Result<Map<String, Object>> getRoomStatusStatistics() {
         Map<String, Object> data = statisticsService.getRoomStatusStatistics();
         return Result.success(data);
@@ -40,6 +40,7 @@ public class StatisticsController {
     
     @Operation(summary = "获取报修类型统计")
     @GetMapping("/repair-type")
+    @RequireRole({1, 2}) // 管理员和宿管可访问
     public Result<Map<String, Object>> getRepairTypeStatistics() {
         Map<String, Object> data = statisticsService.getRepairTypeStatistics();
         return Result.success(data);
@@ -47,6 +48,7 @@ public class StatisticsController {
     
     @Operation(summary = "获取费用统计")
     @GetMapping("/fee")
+    @RequireRole({1, 2}) // 管理员和宿管可访问
     public Result<Map<String, Object>> getFeeStatistics() {
         Map<String, Object> data = statisticsService.getFeeStatistics();
         return Result.success(data);

@@ -1,40 +1,21 @@
-# 应用配置
+# application.yml
 spring:
   application:
     name: SmartApartment
-  
-  # 数据库配置
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/smart_apartment?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
-    username: root
-    password: 123456a
-  
-  # Redis配置
-  redis:
-    host: localhost
-    port: 6379
-    password: 
-    database: 0
-    timeout: 3000
-    lettuce:
-      pool:
-        max-active: 8
-        max-wait: -1
-        max-idle: 8
-        min-idle: 0
-  
-  # 文件上传配置
+  profiles:
+    active: prod  # 默认激活本地开发环境
+
+  # 文件上传 (公共)
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 50MB
 
-# 服务端口
+# 服务端口 (公共，或者你想生产环境不一样也可以拆开)
 server:
-  port: 8080
+  port: 9090
 
-# MyBatis配置
+# MyBatis配置 (公共)
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
   type-aliases-package: org.smartapartment.smartapartment.entity
@@ -42,25 +23,24 @@ mybatis:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
-# PageHelper分页配置
+# PageHelper (公共)
 pagehelper:
   helper-dialect: mysql
   reasonable: true
   support-methods-arguments: true
   params: count=countSql
 
-# JWT配置
+# JWT配置 (公共)
 jwt:
   secret: SmartApartmentSecretKey2024GraduationDesign
   expiration: 604800000
 
-# Knife4j配置
+# Knife4j (公共)
 springdoc:
   api-docs:
     enabled: true
   swagger-ui:
     enabled: true
-
 knife4j:
   enable: true
   setting:

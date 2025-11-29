@@ -1,5 +1,6 @@
 package org.smartapartment.smartapartment.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -26,6 +27,10 @@ public class Room implements Serializable {
     private Integer roomStatus;
     private String description;
     private Integer deleted;
+    
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
+    
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateTime;
 }

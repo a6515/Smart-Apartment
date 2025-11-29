@@ -23,6 +23,10 @@
           <el-icon><House /></el-icon>
           <span>房间管理</span>
         </el-menu-item>
+        <el-menu-item index="/admin/announcement">
+          <el-icon><Bell /></el-icon>
+          <span>公告管理</span>
+        </el-menu-item>
         <el-menu-item index="/admin/checkin">
           <el-icon><User /></el-icon>
           <span>入住管理</span>

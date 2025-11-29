@@ -64,6 +64,7 @@ const routes = [
       { path: 'dashboard', name: 'Dashboard', component: () => import('@/views/admin/Dashboard.vue'), meta: { title: '首页概览' } },
       { path: 'building', name: 'Building', component: () => import('@/views/admin/Building.vue'), meta: { title: '楼宇管理' } },
       { path: 'room', name: 'Room', component: () => import('@/views/admin/Room.vue'), meta: { title: '房间管理' } },
+      { path: 'announcement', name: 'Announcement', component: () => import('@/views/admin/Announcement.vue'), meta: { title: '公告管理' } },
       { path: 'checkin', name: 'CheckIn', component: () => import('@/views/admin/CheckIn.vue'), meta: { title: '入住管理' } },
       { path: 'checkout', name: 'AdminCheckout', component: () => import('@/views/admin/Checkout.vue'), meta: { title: '退宿管理' } },
       { path: 'transfer', name: 'AdminTransfer', component: () => import('@/views/admin/Transfer.vue'), meta: { title: '换宿管理' } },

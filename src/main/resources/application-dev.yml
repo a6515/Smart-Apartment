@@ -1,0 +1,31 @@
+# application-dev.yml
+spring:
+  # 数据库 (本地连本地)
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://47.107.139.162:3306/smart_apartment?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456a  # 你本地数据库密码
+    # 🟢 添加这部分配置
+    hikari:
+      minimum-idle: 3                 # 最小空闲连接
+      maximum-pool-size: 8            # 最大8个连接（服务器只有50个总连接）
+      connection-timeout: 20000       # 连接超时20秒
+      idle-timeout: 300000            # 空闲5分钟后释放
+      max-lifetime: 600000            # 连接最多10分钟后重建
+      connection-test-query: SELECT 1
+
+  # Redis (本地)
+  redis:
+    host: 47.107.139.162
+    port: 6379
+    password: 123456a         # 本地如果没有密码就留空
+    database: 0
+    timeout: 3000
+
+  # RabbitMQ (本地)
+  rabbitmq:
+    host: 47.107.139.162
+    port: 5672
+    username: admin
+    password: 123456a

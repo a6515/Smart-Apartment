@@ -18,9 +18,29 @@ request.interceptors.request.use(
     if (userStore.token) {
       config.headers.Authorization = `Bearer ${userStore.token}`
     }
+    
+    // 调试日志 - 记录请求参数
+    if (config.params) {
+      console.log(`【请求拦截器】${config.url} 参数:`, JSON.stringify(config.params))
+      
+      // 确保数值类型参数正确传递
+      if (config.params.floorNumber) {
+        config.params.floorNumber = parseInt(config.params.floorNumber)
+      }
+      if (config.params.roomType) {
+        config.params.roomType = parseInt(config.params.roomType)
+      }
+      if (config.params.buildingId) {
+        config.params.buildingId = parseInt(config.params.buildingId)
+      }
+      
+      console.log(`【请求拦截器】${config.url} 处理后参数:`, JSON.stringify(config.params))
+    }
+    
     return config
   },
   error => {
+    console.error('请求错误:', error)
     return Promise.reject(error)
   }
 )

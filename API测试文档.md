@@ -2,9 +2,11 @@
 
 ## 测试环境配置
 
-- **后端地址**: http://localhost:8080
-- **接口文档**: http://localhost:8080/doc.html
+- **后端地址**: http://localhost:9090
+- **接口文档**: http://localhost:9090/doc.html
 - **默认管理员**: admin / admin123
+- **最后更新**: 2025-11-29
+- **接口总数**: 60+ 个RESTful接口
 
 ## 一、认证接口测试
 
@@ -445,9 +447,306 @@ GET /api/repair/page?current=1&size=10&status=1
 }
 ```
 
-## 六、数据统计接口测试
+## 六、换宿管理接口测试
 
-### 6.1 首页统计数据
+### 6.1 提交换宿申请
+```
+POST /api/transfer/apply
+Content-Type: application/json
+
+请求体:
+{
+  "studentId": 2,
+  "studentName": "张三",
+  "checkInApplicationId": 1,
+  "currentBuildingId": 1,
+  "currentRoomId": 1,
+  "currentBedId": 1,
+  "targetBuildingId": 2,
+  "targetRoomId": 10,
+  "targetRoomType": 1,
+  "reason": "想换到离教学楼更近的宿舍",
+  "description": "当前宿舍离教学楼较远，希望换到2号楼"
+}
+
+预期响应:
+{
+  "code": 200,
+  "message": "提交成功",
+  "data": null,
+  "timestamp": 1700000000000
+}
+```
+
+### 6.2 审批换宿申请
+```
+POST /api/transfer/approve
+Content-Type: application/json
+
+请求体:
+{
+  "id": 1,
+  "approverId": 1,
+  "approverName": "系统管理员",
+  "status": 2,
+  "remark": "同意换宿申请",
+  "bedId": 15
+}
+
+预期响应:
+{
+  "code": 200,
+  "message": "审批成功",
+  "data": null,
+  "timestamp": 1700000000000
+}
+```
+
+### 6.3 查询换宿申请列表
+```
+GET /api/transfer/page?current=1&size=10&status=1
+
+预期响应:
+{
+  "code": 200,
+  "message": "操作成功",
+  "data": {
+    "total": 8,
+    "records": [
+      {
+        "id": 1,
+        "studentName": "张三",
+        "currentRoomNumber": "101",
+        "targetRoomNumber": "201",
+        "status": 1,
+        "createTime": "2024-01-01T10:00:00"
+      }
+    ],
+    "current": 1,
+    "size": 10
+  },
+  "timestamp": 1700000000000
+}
+```
+
+## 七、退宿管理接口测试
+
+### 7.1 提交退宿申请
+```
+POST /api/checkout/apply
+Content-Type: application/json
+
+请求体:
+{
+  "studentId": 2,
+  "studentName": "张三",
+  "checkInApplicationId": 1,
+  "buildingId": 1,
+  "roomId": 1,
+  "bedId": 1,
+  "checkoutDate": "2024-06-30",
+  "reason": "毕业离校",
+  "description": "本科毕业，办理退宿手续"
+}
+
+预期响应:
+{
+  "code": 200,
+  "message": "提交成功",
+  "data": null,
+  "timestamp": 1700000000000
+}
+```
+
+### 7.2 审批退宿申请
+```
+POST /api/checkout/approve
+Content-Type: application/json
+
+请求体:
+{
+  "id": 1,
+  "approverId": 1,
+  "approverName": "系统管理员",
+  "status": 2,
+  "remark": "同意退宿"
+}
+
+预期响应:
+{
+  "code": 200,
+  "message": "审批成功",
+  "data": null,
+  "timestamp": 1700000000000
+}
+```
+
+### 7.3 查询退宿申请列表
+```
+GET /api/checkout/page?current=1&size=10&status=1
+
+预期响应:
+{
+  "code": 200,
+  "message": "操作成功",
+  "data": {
+    "total": 6,
+    "records": [
+      {
+        "id": 1,
+        "studentName": "张三",
+        "buildingName": "1号楼",
+        "roomNumber": "101",
+        "status": 1,
+        "createTime": "2024-01-01T10:00:00"
+      }
+    ],
+    "current": 1,
+    "size": 10
+  },
+  "timestamp": 1700000000000
+}
+```
+
+## 八、公告管理接口测试
+
+### 8.1 新增公告
+```
+POST /api/announcement
+Content-Type: application/json
+
+请求体:
+{
+  "title": "寒假放假通知",
+  "content": "根据校历安排，寒假放假时间为2024年1月15日至2月25日，请同学们做好离校准备。",
+  "publisherId": 1,
+  "publisherName": "系统管理员",
+  "targetType": "ALL",
+  "announcementType": "NOTICE"
+}
+
+预期响应:
+{
+  "code": 200,
+  "message": "新增成功",
+  "data": null,
+  "timestamp": 1700000000000
+}
+```
+
+### 8.2 发布公告（触发推送）
+```
+POST /api/announcement/publish/1
+
+预期响应:
+{
+  "code": 200,
+  "message": "发布成功",
+  "data": null,
+  "timestamp": 1700000000000
+}
+
+说明: 发布后会通过WebSocket推送给在线学生
+```
+
+### 8.3 查询公告列表
+```
+GET /api/announcement/page?current=1&size=10&status=1
+
+预期响应:
+{
+  "code": 200,
+  "message": "操作成功",
+  "data": {
+    "total": 20,
+    "records": [
+      {
+        "id": 1,
+        "title": "寒假放假通知",
+        "announcementType": "NOTICE",
+        "targetType": "ALL",
+        "status": 1,
+        "publishTime": "2024-01-01T10:00:00"
+      }
+    ],
+    "current": 1,
+    "size": 10
+  },
+  "timestamp": 1700000000000
+}
+```
+
+### 8.4 撤回公告
+```
+POST /api/announcement/withdraw/1
+
+预期响应:
+{
+  "code": 200,
+  "message": "撤回成功",
+  "data": null,
+  "timestamp": 1700000000000
+}
+```
+
+## 九、消息通知接口测试
+
+### 9.1 查询消息列表
+```
+GET /api/message/page?current=1&size=10&isRead=0
+
+预期响应:
+{
+  "code": 200,
+  "message": "操作成功",
+  "data": {
+    "total": 5,
+    "records": [
+      {
+        "id": 1,
+        "messageType": "ANNOUNCEMENT",
+        "title": "寒假放假通知",
+        "content": "根据校历安排...",
+        "isRead": 0,
+        "createTime": "2024-01-01T10:00:00"
+      }
+    ],
+    "current": 1,
+    "size": 10
+  },
+  "timestamp": 1700000000000
+}
+```
+
+### 9.2 标记消息已读
+```
+POST /api/message/read/1
+
+预期响应:
+{
+  "code": 200,
+  "message": "操作成功",
+  "data": null,
+  "timestamp": 1700000000000
+}
+```
+
+### 9.3 全部标记已读
+```
+POST /api/message/readAll
+
+预期响应:
+{
+  "code": 200,
+  "message": "操作成功",
+  "data": null,
+  "timestamp": 1700000000000
+}
+```
+
+## 十、数据统计接口测试
+
+### 10.1 首页统计数据
 ```
 GET /api/statistics/dashboard
 
@@ -470,7 +769,7 @@ GET /api/statistics/dashboard
 }
 ```
 
-### 6.2 房间状态统计
+### 10.2 房间状态统计
 ```
 GET /api/statistics/room-status
 
@@ -488,7 +787,7 @@ GET /api/statistics/room-status
 }
 ```
 
-### 6.3 报修类型统计
+### 10.3 报修类型统计
 ```
 GET /api/statistics/repair-type
 
@@ -506,7 +805,7 @@ GET /api/statistics/repair-type
 }
 ```
 
-### 6.4 费用统计
+### 10.4 费用统计
 ```
 GET /api/statistics/fee
 
@@ -523,9 +822,9 @@ GET /api/statistics/fee
 }
 ```
 
-## 七、异常情况测试
+## 十一、异常情况测试
 
-### 7.1 登录失败 - 用户不存在
+### 11.1 登录失败 - 用户不存在
 ```
 POST /api/auth/login
 {
@@ -542,7 +841,7 @@ POST /api/auth/login
 }
 ```
 
-### 7.2 登录失败 - 密码错误
+### 11.2 登录失败 - 密码错误
 ```
 POST /api/auth/login
 {
@@ -559,7 +858,7 @@ POST /api/auth/login
 }
 ```
 
-### 7.3 新增失败 - 楼宇编号重复
+### 11.3 新增失败 - 楼宇编号重复
 ```
 POST /api/building
 {
@@ -576,7 +875,7 @@ POST /api/building
 }
 ```
 
-### 7.4 参数校验失败
+### 11.4 参数校验失败
 ```
 POST /api/auth/login
 {
@@ -593,23 +892,23 @@ POST /api/auth/login
 }
 ```
 
-## 八、性能测试建议
+## 十二、性能测试建议
 
-### 8.1 并发测试
+### 12.1 并发测试
 使用JMeter或Apache Bench进行并发测试：
 ```bash
 # 使用Apache Bench测试登录接口
-ab -n 1000 -c 100 -p login.json -T application/json http://localhost:8080/api/auth/login
+ab -n 1000 -c 100 -p login.json -T application/json http://localhost:9090/api/auth/login
 ```
 
-### 8.2 压力测试指标
+### 12.2 压力测试指标
 - **响应时间**: < 500ms（正常情况）
 - **并发用户**: 支持100+并发
 - **成功率**: > 99%
 - **CPU使用率**: < 80%
 - **内存使用率**: < 70%
 
-## 九、测试用例清单
+## 十三、测试用例清单
 
 | 模块 | 测试用例 | 优先级 | 状态 |
 |------|----------|--------|------|
@@ -621,12 +920,21 @@ ab -n 1000 -c 100 -p login.json -T application/json http://localhost:8080/api/au
 | 房间 | 更新状态 | P1 | ✅ |
 | 入住 | 提交申请 | P0 | ✅ |
 | 入住 | 审批通过 | P0 | ✅ |
+| 换宿 | 提交申请 | P0 | ✅ |
+| 换宿 | 审批通过 | P0 | ✅ |
+| 退宿 | 提交申请 | P0 | ✅ |
+| 退宿 | 审批通过 | P0 | ✅ |
 | 报修 | 提交报修 | P0 | ✅ |
 | 报修 | 接单维修 | P0 | ✅ |
+| 报修 | 评价 | P1 | ✅ |
+| 公告 | 新增公告 | P0 | ✅ |
+| 公告 | 发布推送 | P0 | ✅ |
+| 消息 | 查询列表 | P1 | ✅ |
+| 消息 | 标记已读 | P1 | ✅ |
 | 统计 | 首页数据 | P1 | ✅ |
 | 异常 | 参数校验 | P1 | ✅ |
 
-## 十、自动化测试脚本
+## 十四、自动化测试脚本
 
 使用Postman Collection可以批量运行所有测试用例。建议：
 1. 导出Postman Collection

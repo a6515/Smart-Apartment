@@ -24,7 +24,14 @@ public interface RoomMapper {
     int deleteById(@Param("id") Long id);
     
     List<Room> selectAvailableRooms(@Param("buildingId") Long buildingId, 
-                                     @Param("roomType") Integer roomType);
+                                     @Param("roomType") Integer roomType,
+                                     @Param("floorNumber") Integer floorNumber,
+                                     @Param("hasAvailableBeds") Boolean hasAvailableBeds);
+    
+    /**
+     * 按楼栋ID查询所有房间
+     */
+    List<Room> selectByBuildingId(@Param("buildingId") Long buildingId);
     
     /**
      * 统计房间总数

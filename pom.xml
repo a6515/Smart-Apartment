@@ -35,6 +35,12 @@
 			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
 		
+		<!-- Spring Boot WebSocket -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
+		
 		<!-- Spring Boot Validation - 参数校验 -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -45,6 +51,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+		
+		<!-- Spring Boot AMQP - RabbitMQ支持 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
 		</dependency>
 		
 		<!-- Spring Security - 密码加密 -->
@@ -118,6 +130,12 @@
 			<groupId>com.alibaba.fastjson2</groupId>
 			<artifactId>fastjson2</artifactId>
 			<version>${fastjson.version}</version>
+		</dependency>
+		
+		<!-- Jackson JSR310模块 - 支持Java 8日期时间类型 -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
 		</dependency>
 		
 		<!-- Apache Commons Lang3 -->

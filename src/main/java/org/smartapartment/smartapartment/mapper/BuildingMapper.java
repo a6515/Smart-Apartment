@@ -41,4 +41,9 @@ public interface BuildingMapper {
      * 统计楼宇总数
      */
     Long countTotal();
+    
+    /**
+     * 获取热门楼栋列表，按入住率排序（最多返回指定数量）
+     */
+    List<Building> selectPopularBuildings(@Param("limit") Integer limit);
 }

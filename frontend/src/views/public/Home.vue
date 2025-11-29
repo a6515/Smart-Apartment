@@ -17,20 +17,20 @@
       <div class="container">
         <div class="stats-grid">
           <div class="stat-item">
-            <div class="stat-number">{{ stats.buildingCount }}</div>
+            <div class="stat-number">{{ stats.buildingCount || 0 }}</div>
             <div class="stat-label">公寓楼栋</div>
           </div>
           <div class="stat-item">
-            <div class="stat-number">{{ stats.roomCount }}</div>
-            <div class="stat-label">可用房间</div>
+            <div class="stat-number">{{ stats.availableBeds || 0 }}</div>
+            <div class="stat-label">可用床位</div>
           </div>
           <div class="stat-item">
-            <div class="stat-number">{{ stats.studentCount }}</div>
-            <div class="stat-label">入住学生</div>
+            <div class="stat-number">{{ stats.occupiedBeds || 0 }}</div>
+            <div class="stat-label">入住床位</div>
           </div>
           <div class="stat-item">
-            <div class="stat-number">{{ stats.satisfaction }}%</div>
-            <div class="stat-label">满意度</div>
+            <div class="stat-number">{{ stats.occupancyRate || '0' }}%</div>
+            <div class="stat-label">入住率</div>
           </div>
         </div>
       </div>
@@ -46,16 +46,16 @@
           <el-col :xs="24" :sm="12" :md="8" v-for="building in buildings" :key="building.id">
             <el-card class="building-card" shadow="hover">
               <div class="building-image" :style="{ backgroundImage: `url(${building.imageUrl || getRandomBuildingImage()})` }">
-                <div class="building-badge" :class="building.roomCount > 10 ? 'available' : 'limited'">
-                  {{ building.roomCount > 10 ? '充足' : '紧张' }}
+                <div class="building-badge" :class="building.totalRooms > 10 ? 'available' : 'limited'">
+                  {{ building.totalRooms > 10 ? '充足' : '紧张' }}
                 </div>
               </div>
               <div class="building-info">
-                <h3>{{ building.name }}</h3>
-                <p class="building-description">{{ building.description || '舒适便捷的学生公寓，配套设施齐全' }}</p>
+                <h3>{{ building.buildingName }}</h3>
+                <p class="building-description">{{ building.description }}</p>
                 <div class="building-meta">
-                  <span><el-icon><HomeFilled /></el-icon> {{ building.roomCount || '--' }}间可用</span>
-                  <span><el-icon><Location /></el-icon> {{ building.location || '校区内' }}</span>
+                  <span><el-icon><HomeFilled /></el-icon> {{ building.totalRooms }}间</span>
+                  <span><el-icon><Location /></el-icon> {{ building.address }}</span>
                 </div>
                 <el-button type="primary" plain class="view-button" @click="viewBuilding(building.id)">
                   查看详情
@@ -139,7 +139,8 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { getBuildingList } from '@/api/building'
+import { getBuildingList, getPopularBuildings } from '@/api/building'
+import { getDashboardData } from '@/api/statistics'
 import { ElMessage } from 'element-plus'
 import { 
   HomeFilled, Location, ArrowRight, Tools, 
@@ -156,10 +157,10 @@ const isStudent = computed(() => isLoggedIn.value && userStore.userInfo?.userTyp
 
 // 数据统计
 const stats = ref({
-  buildingCount: 8,
-  roomCount: 450,
-  studentCount: 1200,
-  satisfaction: 98
+  buildingCount: 0,
+  availableBeds: 0,
+  occupiedBeds: 0,
+  occupancyRate: '0'
 })
 
 // 楼宇列表
@@ -218,69 +219,87 @@ const scrollToRooms = () => {
   document.getElementById('rooms-section').scrollIntoView({ behavior: 'smooth' })
 }
 
+// 加载统计数据
+const loadStatistics = async () => {
+  try {
+    const res = await getDashboardData()
+    if (res && res.data) {
+      stats.value = res.data
+    }
+  } catch (error) {
+    console.error('获取统计数据失败', error)
+    // 保留默认数据
+  }
+}
+
 // 加载楼宇数据
 const loadBuildings = async () => {
   try {
-    const res = await getBuildingList()
+    const res = await getPopularBuildings(3)
     buildings.value = res.data || []
     
-    // 如果没有数据或数据不足，添加一些示例数据
-    if (buildings.value.length < 3) {
-      const demoBuildings = [
+    // 如果没有数据，添加一些示例数据
+    if (!buildings.value || buildings.value.length === 0) {
+      buildings.value = [
         {
           id: 101,
-          name: '明德公寓',
+          buildingName: '明德公寓',
           description: '位于校园东区，环境优美，配套设施完善',
-          roomCount: 120,
-          location: '校园东区',
+          totalRooms: 120,
+          address: '校园东区',
           imageUrl: getRandomBuildingImage()
         },
         {
           id: 102,
-          name: '博雅公寓',
+          buildingName: '博雅公寓',
           description: '紧邻图书馆，学习氛围浓厚，安静舒适',
-          roomCount: 8,
-          location: '校园北区',
+          totalRooms: 8,
+          address: '校园北区',
           imageUrl: getRandomBuildingImage()
         },
         {
           id: 103,
-          name: '致远公寓',
+          buildingName: '致远公寓',
           description: '靠近体育场，活动便利，配有共享空间',
-          roomCount: 56,
-          location: '校园西区',
+          totalRooms: 56,
+          address: '校园西区',
           imageUrl: getRandomBuildingImage()
         }
       ]
-      
-      buildings.value = [...buildings.value, ...demoBuildings.slice(0, 3 - buildings.value.length)]
+    } else {
+      // 为楼栋添加随机图片
+      buildings.value.forEach(building => {
+        if (!building.imageUrl) {
+          building.imageUrl = getRandomBuildingImage()
+        }
+      })
     }
   } catch (error) {
-    console.error('获取楼宇列表失败', error)
+    console.error('获取热门楼栋失败', error)
     // 使用示例数据
     buildings.value = [
       {
         id: 101,
-        name: '明德公寓',
+        buildingName: '明德公寓',
         description: '位于校园东区，环境优美，配套设施完善',
-        roomCount: 120,
-        location: '校园东区',
+        totalRooms: 120,
+        address: '校园东区',
         imageUrl: getRandomBuildingImage()
       },
       {
         id: 102,
-        name: '博雅公寓',
+        buildingName: '博雅公寓',
         description: '紧邻图书馆，学习氛围浓厚，安静舒适',
-        roomCount: 8,
-        location: '校园北区',
+        totalRooms: 8,
+        address: '校园北区',
         imageUrl: getRandomBuildingImage()
       },
       {
         id: 103,
-        name: '致远公寓',
+        buildingName: '致远公寓',
         description: '靠近体育场，活动便利，配有共享空间',
-        roomCount: 56,
-        location: '校园西区',
+        totalRooms: 56,
+        address: '校园西区',
         imageUrl: getRandomBuildingImage()
       }
     ]
@@ -289,10 +308,8 @@ const loadBuildings = async () => {
 
 onMounted(() => {
   loadBuildings()
-  
-  // 加载统计数据
-  // 在实际项目中，这里应该从后端API获取真实的统计数据
-  // 此处使用模拟数据
+  loadStatistics()
+  loadStatistics()
   
   // 如果登录了显示欢迎消息
   if (isLoggedIn.value) {

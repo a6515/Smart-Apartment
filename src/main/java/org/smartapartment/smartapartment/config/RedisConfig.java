@@ -1,9 +1,11 @@
 package org.smartapartment.smartapartment.config;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +31,13 @@ public class RedisConfig {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
         mapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL);
+        
+        // 注册Java 8日期时间模块
+        mapper.registerModule(new JavaTimeModule());
+        
+        // 配置忽略值为null的属性
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        
         serializer.setObjectMapper(mapper);
         
         // 使用StringRedisSerializer来序列化和反序列化redis的key值

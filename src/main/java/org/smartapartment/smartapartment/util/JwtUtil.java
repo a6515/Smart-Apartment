@@ -32,16 +32,8 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
     
-    /**
-     * 生成Token
-     */
-    public String generateToken(Long userId, String username) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", userId);
-        claims.put("username", username);
-        return createToken(claims);
-    }
-    
+
+
     /**
      * 生成Token（包含用户类型）
      */

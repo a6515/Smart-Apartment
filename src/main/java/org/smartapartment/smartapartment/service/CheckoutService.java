@@ -13,6 +13,7 @@ import org.smartapartment.smartapartment.mapper.BedMapper;
 import org.smartapartment.smartapartment.mapper.CheckInApplicationMapper;
 import org.smartapartment.smartapartment.mapper.CheckoutApplicationMapper;
 import org.smartapartment.smartapartment.mapper.RoomMapper;
+import org.smartapartment.smartapartment.service.RoomService;
 import org.smartapartment.smartapartment.utils.SecurityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +37,7 @@ public class CheckoutService {
     private final CheckInApplicationMapper checkInMapper;
     private final RoomMapper roomMapper;
     private final BedMapper bedMapper;
+    private final RoomService roomService;
     
     /**
      * 分页查询退宿申请
@@ -164,6 +166,9 @@ public class CheckoutService {
                     room.setRoomStatus(2); // 部分入住
                 }
                 roomMapper.updateById(room);
+                
+                // 清除房间相关缓存
+                roomService.updateBedStatus(application.getRoomId());
             }
             
             // 3. 更新入住申请状态（已退宿）

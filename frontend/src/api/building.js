@@ -50,3 +50,12 @@ export const getBuildingList = () => {
     method: 'get'
   })
 }
+
+// 获取热门楼栋（按入住率排序）
+export const getPopularBuildings = (limit = 3) => {
+  return request({
+    url: '/building/popular',
+    method: 'get',
+    params: { limit }
+  })
+}

@@ -87,4 +87,22 @@
         SELECT COUNT(*) FROM building WHERE deleted = 0
     </select>
     
+    <!-- 获取热门楼栋，按入住率排序 -->
+    <select id="selectPopularBuildings" resultMap="BaseResultMap">
+        SELECT 
+            b.*,
+            (SELECT COUNT(*) FROM room r WHERE r.building_id = b.id AND r.room_status = 3) as occupied_rooms,
+            (SELECT COUNT(*) FROM room r WHERE r.building_id = b.id) as total_building_rooms
+        FROM 
+            building b
+        WHERE 
+            b.deleted = 0
+            AND b.status = 1
+            AND EXISTS (SELECT 1 FROM room r WHERE r.building_id = b.id)
+        ORDER BY 
+            occupied_rooms / total_building_rooms DESC,
+            b.total_rooms DESC
+        LIMIT #{limit}
+    </select>
+    
 </mapper>

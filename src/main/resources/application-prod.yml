@@ -1,0 +1,34 @@
+# application-prod.yml
+spring:
+  # 数据库 (Docker 内部互联)
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 注意：这里把 localhost 改成了 mysql (容器名)
+    url: jdbc:mysql://mysql:3306/smart_apartment?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456a  # 服务器数据库密码
+    # 🟢 添加这部分配置
+    hikari:
+      minimum-idle: 3                 # 最小空闲连接
+      maximum-pool-size: 8            # 最大8个连接（服务器只有50个总连接）
+      connection-timeout: 20000       # 连接超时20秒
+      idle-timeout: 300000            # 空闲5分钟后释放
+      max-lifetime: 600000            # 连接最多10分钟后重建
+      connection-test-query: SELECT 1
+
+  # Redis (Docker 内部互联)
+  redis:
+    # 注意：这里把 localhost 改成了 redis (容器名)
+    host: redis
+    port: 6379
+    password: 123456a  # 服务器 Redis 密码 (必填)
+    database: 0
+    timeout: 3000
+
+  # RabbitMQ (Docker 内部互联)
+  rabbitmq:
+    # 注意：这里把 localhost 改成了 rabbitmq (容器名)
+    host: rabbitmq
+    port: 5672
+    username: admin    # 服务器 RabbitMQ 账号
+    password: 123456a  # 服务器 RabbitMQ 密码

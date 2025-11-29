@@ -4,6 +4,26 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.smartapartment.smartapartment.mapper.RoomMapper">
 
+    <!-- BaseResultMap定义 -->
+    <resultMap id="BaseResultMap" type="org.smartapartment.smartapartment.entity.Room">
+        <id column="id" property="id"/>
+        <result column="buildingId" property="buildingId"/>
+        <result column="buildingName" property="buildingName"/>
+        <result column="roomNumber" property="roomNumber"/>
+        <result column="floor" property="floor"/>
+        <result column="roomType" property="roomType"/>
+        <result column="totalBeds" property="totalBeds"/>
+        <result column="availableBeds" property="availableBeds"/>
+        <result column="area" property="area"/>
+        <result column="price" property="price"/>
+        <result column="facilities" property="facilities"/>
+        <result column="roomStatus" property="roomStatus"/>
+        <result column="description" property="description"/>
+        <result column="deleted" property="deleted"/>
+        <result column="createTime" property="createTime"/>
+        <result column="updateTime" property="updateTime"/>
+    </resultMap>
+
     <select id="selectPage" resultType="org.smartapartment.smartapartment.entity.Room">
         select
             r.id,
@@ -42,6 +62,8 @@
     </select>
 
     <select id="selectAvailableRooms" resultType="org.smartapartment.smartapartment.entity.Room">
+        <!-- SQL查询开始：这个查询支持按楼栋ID、房型、楼层和床位状态进行筛选 -->
+        <!-- 参数调试：#{buildingId}, #{roomType}, #{floorNumber}, #{hasAvailableBeds} -->
         select
             r.id,
             r.building_id as buildingId,
@@ -65,15 +87,29 @@
             building b on r.building_id = b.id
         <where>
             r.deleted = 0
-            and r.available_beds > 0
+            <if test="hasAvailableBeds != null">
+                <choose>
+                    <when test="hasAvailableBeds == true">
+                        and r.available_beds > 0
+                    </when>
+                    <otherwise>
+                        and r.available_beds = 0
+                    </otherwise>
+                </choose>
+            </if>
             <if test="buildingId != null">
                 and r.building_id = #{buildingId}
             </if>
             <if test="roomType != null">
                 and r.room_type = #{roomType}
             </if>
+            <if test="floorNumber != null and floorNumber != ''">
+                <!-- 楼层筛选，确保数据类型匹配且非空字符串 -->
+                and r.floor = #{floorNumber}
+            </if>
         </where>
-        order by r.room_number
+        order by b.building_name, r.room_number
+        <!-- SQL查询结束 -->
     </select>
 
     <select id="selectById" resultType="org.smartapartment.smartapartment.entity.Room">
@@ -144,6 +180,18 @@
         SET deleted = 1, update_time = NOW()
         WHERE id = #{id}
     </update>
+
+    <!-- 按楼栋ID查询所有房间 -->
+    <select id="selectByBuildingId" resultType="org.smartapartment.smartapartment.entity.Room">
+        select r.id, r.building_id as buildingId, b.building_name as buildingName, r.room_number as roomNumber, 
+               r.floor, r.room_type as roomType, r.total_beds as totalBeds, r.available_beds as availableBeds,
+               r.area, r.price, r.facilities, r.room_status as roomStatus, r.description, r.deleted,
+               r.create_time as createTime, r.update_time as updateTime
+        from room r
+        left join building b on r.building_id = b.id
+        where r.deleted = 0 and r.building_id = #{buildingId}
+        order by r.floor, r.room_number
+    </select>
 
     <!-- 统计房间总数 -->
     <select id="countTotal" resultType="java.lang.Long">

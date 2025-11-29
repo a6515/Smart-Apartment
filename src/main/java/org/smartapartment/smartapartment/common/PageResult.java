@@ -21,4 +21,28 @@ public class PageResult<T> implements Serializable {
     private List<T> records;
     private Long current;
     private Long size;
+    
+    /**
+     * 从Page对象创建PageResult
+     */
+    public static <E> PageResult<E> of(Page<E> page) {
+        return PageResult.<E>builder()
+                .total(page.getTotal())
+                .records(page.getRecords())
+                .current((long) page.getCurrent())
+                .size((long) page.getSize())
+                .build();
+    }
+    
+    /**
+     * 创建PageResult的工厂方法
+     */
+    public static <E> PageResult<E> of(long total, List<E> records, long current, long size) {
+        return PageResult.<E>builder()
+                .total(total)
+                .records(records)
+                .current(current)
+                .size(size)
+                .build();
+    }
 }

@@ -1,15 +1,21 @@
 package org.smartapartment.smartapartment.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.smartapartment.smartapartment.entity.SysUser;
+import org.smartapartment.smartapartment.entity.SystemMessage;
 import org.smartapartment.smartapartment.exception.BusinessException;
 import org.smartapartment.smartapartment.mapper.SysUserMapper;
+import org.smartapartment.smartapartment.model.WebSocketMessage;
+import org.smartapartment.smartapartment.service.MessageService;
+import org.smartapartment.smartapartment.service.WebSocketService;
 import org.smartapartment.smartapartment.util.JwtUtil;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -18,12 +24,15 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
     
     private final SysUserMapper userMapper;
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, Object> redisTemplate;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final MessageService messageService;
+    private final WebSocketService webSocketService;
     
     /**
      * 用户登录
@@ -103,6 +112,16 @@ public class AuthService {
         userInfo.put("department", user.getDepartment());
         userInfo.put("major", user.getMajor());
         userInfo.put("className", user.getClassName());
+        
+        // 添加未读消息数量
+        try {
+            int unreadCount = messageService.getUserUnreadMessageCount(user.getId());
+            userInfo.put("unreadMessageCount", unreadCount);
+        } catch (Exception e) {
+            log.error("【获取未读消息数】失败, 用户ID: {}, 错误: {}", user.getId(), e.getMessage());
+            userInfo.put("unreadMessageCount", 0);
+        }
+        
         return userInfo;
     }
 }

@@ -23,3 +23,11 @@ export const getRepairTypeStatistics = () => {
     method: 'get'
   })
 }
+
+// 获取费用统计
+export const getFeeStatistics = () => {
+  return request({
+    url: '/statistics/fee',
+    method: 'get'
+  })
+}

@@ -13,6 +13,7 @@ import org.smartapartment.smartapartment.mapper.BedMapper;
 import org.smartapartment.smartapartment.mapper.CheckInApplicationMapper;
 import org.smartapartment.smartapartment.mapper.RoomMapper;
 import org.smartapartment.smartapartment.mapper.TransferApplicationMapper;
+import org.smartapartment.smartapartment.service.RoomService;
 import org.smartapartment.smartapartment.utils.SecurityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +37,7 @@ public class TransferService {
     private final CheckInApplicationMapper checkInMapper;
     private final RoomMapper roomMapper;
     private final BedMapper bedMapper;
+    private final RoomService roomService;
     
     /**
      * 分页查询换宿申请
@@ -204,6 +206,9 @@ public class TransferService {
                     oldRoom.setRoomStatus(2); // 部分入住
                 }
                 roomMapper.updateById(oldRoom);
+                
+                // 清除原房间相关缓存
+                roomService.updateBedStatus(application.getCurrentRoomId());
             }
             
             // 4. 更新新房间状态
@@ -216,6 +221,9 @@ public class TransferService {
                     newRoom.setRoomStatus(2); // 部分入住
                 }
                 roomMapper.updateById(newRoom);
+                
+                // 清除新房间相关缓存
+                roomService.updateBedStatus(application.getTargetRoomId());
             }
             
             // 5. 更新入住申请的房间和床位信息

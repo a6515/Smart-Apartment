@@ -46,6 +46,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { login } from '@/api/auth'
 import { useUserStore } from '@/stores/user'
+import { initWebSocket } from '@/utils/websocket'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -79,6 +80,12 @@ const handleLogin = async () => {
     userStore.setUserInfo(res.data.userInfo)
     
     ElMessage.success('登录成功')
+    
+    // 尝试初始化WebSocket连接
+    setTimeout(() => {
+      initWebSocket()
+    }, 500)
+    
     router.push('/') // 修改为首页路由
 
   } catch (error) {

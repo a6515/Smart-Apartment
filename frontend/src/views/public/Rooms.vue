@@ -6,36 +6,6 @@
         <p>查找并了解我们的公寓楼栋和房间信息</p>
       </div>
     </section>
-
-    <section class="filter-section">
-      <div class="container">
-        <el-form :model="filterForm" inline>
-          <el-form-item label="楼栋">
-            <el-select v-model="filterForm.buildingId" placeholder="选择楼栋" clearable>
-              <el-option 
-                v-for="building in buildings" 
-                :key="building.id" 
-                :label="building.name" 
-                :value="building.id" />
-            </el-select>
-          </el-form-item>
-          
-          <el-form-item label="房间类型">
-            <el-select v-model="filterForm.roomType" placeholder="选择类型" clearable>
-              <el-option label="单人间" value="1" />
-              <el-option label="双人间" value="2" />
-              <el-option label="四人间" value="4" />
-              <el-option label="六人间" value="6" />
-            </el-select>
-          </el-form-item>
-          
-          <el-form-item>
-            <el-button type="primary" @click="handleFilter">筛选</el-button>
-            <el-button @click="resetFilter">重置</el-button>
-          </el-form-item>
-        </el-form>
-      </div>
-    </section>
     
     <section class="buildings-section">
       <div class="container">
@@ -50,20 +20,20 @@
                     </div>
                   </div>
                   <div class="building-info">
-                    <h3>{{ building.name }}</h3>
+                    <h3>{{ building.buildingName }}</h3>
                     <p class="building-description">{{ building.description || '舒适便捷的学生公寓，配套设施齐全' }}</p>
                     <div class="building-details">
                       <div class="detail-item">
                         <div class="detail-label">位置</div>
-                        <div class="detail-value">{{ building.location || '校区内' }}</div>
+                        <div class="detail-value">{{ building.address || '校区内' }}</div>
                       </div>
                       <div class="detail-item">
                         <div class="detail-label">可用房间</div>
-                        <div class="detail-value">{{ building.roomCount || '--' }}间</div>
+                        <div class="detail-value">{{ building.totalRooms || '--' }}间</div>
                       </div>
                       <div class="detail-item">
-                        <div class="detail-label">房型</div>
-                        <div class="detail-value">{{ building.roomTypes || '多种房型' }}</div>
+                        <div class="detail-label">楼层</div>
+                        <div class="detail-value">{{ building.floors || '--' }}层</div>
                       </div>
                     </div>
                     <div class="card-actions">
@@ -78,6 +48,73 @@
           </el-tab-pane>
           
           <el-tab-pane label="房间列表" name="rooms">
+            <!-- 房间列表筛选条件 -->
+            <div class="filter-section">
+              <el-form :model="filterForm" inline class="filter-form">
+                <el-form-item label="楼栋">
+                  <el-select 
+                    v-model="filterForm.buildingId" 
+                    placeholder="选择楼栋" 
+                    clearable
+                    style="width: 180px;"
+                  >
+                    <el-option 
+                      v-for="building in buildings" 
+                      :key="building.id" 
+                      :label="building.buildingName" 
+                      :value="building.id" />
+                  </el-select>
+                </el-form-item>
+                
+                <el-form-item label="房间类型">
+                  <el-select 
+                    v-model="filterForm.roomType" 
+                    placeholder="选择类型" 
+                    clearable
+                    style="width: 180px;"
+                  >
+                    <el-option label="单人间" value="1" />
+                    <el-option label="双人间" value="2" />
+                    <el-option label="四人间" value="4" />
+                    <el-option label="六人间" value="6" />
+                  </el-select>
+                </el-form-item>
+                
+                <el-form-item label="楼层">
+                  <el-select 
+                    v-model="filterForm.floorNumber" 
+                    placeholder="选择楼层" 
+                    clearable
+                    style="width: 180px;"
+                  >
+                    <el-option label="1层" value="1" />
+                    <el-option label="2层" value="2" />
+                    <el-option label="3层" value="3" />
+                    <el-option label="4层" value="4" />
+                    <el-option label="5层" value="5" />
+                    <el-option label="6层" value="6" />
+                  </el-select>
+                </el-form-item>
+                
+                <el-form-item label="床位状态">
+                  <el-select 
+                    v-model="filterForm.bedStatus" 
+                    placeholder="床位状态" 
+                    clearable
+                    style="width: 180px;"
+                  >
+                    <el-option label="有空床位" value="available" />
+                    <el-option label="无空床位" value="full" />
+                  </el-select>
+                </el-form-item>
+                
+                <el-form-item>
+                  <el-button type="primary" @click="handleFilter">筛选</el-button>
+                  <el-button @click="resetFilter">重置</el-button>
+                </el-form-item>
+              </el-form>
+            </div>
+            
             <div class="rooms-list">
               <el-table 
                 :data="rooms" 
@@ -93,14 +130,6 @@
                     <el-tag :type="scope.row.bedsAvailable > 0 ? 'success' : 'info'">
                       {{ scope.row.bedsAvailable }}
                     </el-tag>
-                  </template>
-                </el-table-column>
-                <el-table-column label="设施" min-width="150">
-                  <template #default="scope">
-                    <el-tag size="small" v-if="scope.row.hasAirCon">空调</el-tag>
-                    <el-tag size="small" v-if="scope.row.hasHeating">暖气</el-tag>
-                    <el-tag size="small" v-if="scope.row.hasBalcony">阳台</el-tag>
-                    <el-tag size="small" v-if="scope.row.hasPrivateBath">独卫</el-tag>
                   </template>
                 </el-table-column>
                 <el-table-column fixed="right" label="操作" width="120">
@@ -228,7 +257,9 @@ const pageSize = ref(10)
 // 筛选表单
 const filterForm = reactive({
   buildingId: route.query.buildingId || '',
-  roomType: ''
+  roomType: '',
+  floorNumber: '',
+  bedStatus: ''
 })
 
 // 房间详情
@@ -246,31 +277,46 @@ const getRandomBuildingImage = () => {
   return buildingImages[Math.floor(Math.random() * buildingImages.length)]
 }
 
-// 过滤后的楼栋列表
+// 过滤后的楼栋列表 - 不再通过筛选表单过滤楼栋
 const filteredBuildings = computed(() => {
-  let result = [...buildings.value]
-  
-  if (filterForm.buildingId) {
-    result = result.filter(b => b.id == filterForm.buildingId)
-  }
-  
-  return result
+  // 所有楼栋都显示，不再过滤
+  return buildings.value
 })
 
 // 获取楼栋状态类
 const getBuildingStatusClass = (building) => {
-  const count = building.roomCount || 0
-  if (count > 20) return 'available'
-  if (count > 0) return 'limited'
-  return 'full'
+  // 可以根据实际字段调整逻辑
+  if (building.hasOwnProperty('roomCount')) {
+    // 兼容旧数据
+    const count = building.roomCount || 0
+    if (count > 20) return 'available'
+    if (count > 0) return 'limited'
+    return 'full'
+  } else {
+    // 根据新字段计算
+    const totalRooms = building.totalRooms || 0
+    if (totalRooms > 20) return 'available'
+    if (totalRooms > 0) return 'limited'
+    return 'full'
+  }
 }
 
 // 获取楼栋状态文本
 const getBuildingStatusText = (building) => {
-  const count = building.roomCount || 0
-  if (count > 20) return '充足'
-  if (count > 0) return '紧张'
-  return '已满'
+  // 可以根据实际字段调整逻辑
+  if (building.hasOwnProperty('roomCount')) {
+    // 兼容旧数据
+    const count = building.roomCount || 0
+    if (count > 20) return '充足'
+    if (count > 0) return '紧张'
+    return '已满'
+  } else {
+    // 根据新字段计算
+    const totalRooms = building.totalRooms || 0
+    if (totalRooms > 20) return '充足'
+    if (totalRooms > 0) return '紧张'
+    return '已满'
+  }
 }
 
 // 处理标签页切换
@@ -282,19 +328,17 @@ const handleTabChange = (tab) => {
 
 // 筛选处理
 const handleFilter = () => {
-  if (activeTab.value === 'buildings') {
-    // 楼栋筛选已通过计算属性实现
-  } else {
-    // 房间筛选需要重新加载数据
-    currentPage.value = 1
-    loadRooms()
-  }
+  // 只对房间列表进行筛选
+  currentPage.value = 1
+  loadRooms()
 }
 
 // 重置筛选
 const resetFilter = () => {
   filterForm.buildingId = ''
   filterForm.roomType = ''
+  filterForm.floorNumber = ''
+  filterForm.bedStatus = ''
   
   if (activeTab.value === 'rooms') {
     loadRooms()
@@ -347,93 +391,23 @@ const applyRoom = (room) => {
 const loadBuildings = async () => {
   try {
     const res = await getBuildingList()
-    buildings.value = res.data || []
     
-    // 如果没有数据或数据不足，添加一些示例数据
-    if (buildings.value.length < 3) {
-      const demoBuildings = [
-        {
-          id: 101,
-          name: '明德公寓',
-          description: '位于校园东区，环境优美，配套设施完善',
-          roomCount: 120,
-          location: '校园东区',
-          roomTypes: '单人间、双人间',
-          imageUrl: getRandomBuildingImage()
-        },
-        {
-          id: 102,
-          name: '博雅公寓',
-          description: '紧邻图书馆，学习氛围浓厚，安静舒适',
-          roomCount: 8,
-          location: '校园北区',
-          roomTypes: '四人间、六人间',
-          imageUrl: getRandomBuildingImage()
-        },
-        {
-          id: 103,
-          name: '致远公寓',
-          description: '靠近体育场，活动便利，配有共享空间',
-          roomCount: 56,
-          location: '校园西区',
-          roomTypes: '双人间、四人间',
-          imageUrl: getRandomBuildingImage()
-        },
-        {
-          id: 104,
-          name: '和悦公寓',
-          description: '地理位置优越，环境幽静，适合学习',
-          roomCount: 0,
-          location: '校园南区',
-          roomTypes: '单人间',
-          imageUrl: getRandomBuildingImage()
+    // 确保有数据并处理图片
+    if (res.data && res.data.length > 0) {
+      buildings.value = res.data.map(building => {
+        return {
+          ...building,
+          imageUrl: building.imageUrl || getRandomBuildingImage()
         }
-      ]
-      
-      buildings.value = [...buildings.value, ...demoBuildings.slice(0, 4 - buildings.value.length)]
+      })
+    } else {
+      buildings.value = []
+      ElMessage.warning('暂无楼栋数据，请联系管理员添加楼栋信息')
     }
   } catch (error) {
     console.error('获取楼宇列表失败', error)
-    ElMessage.error('获取楼宇数据失败')
-    // 使用示例数据
-    buildings.value = [
-      {
-        id: 101,
-        name: '明德公寓',
-        description: '位于校园东区，环境优美，配套设施完善',
-        roomCount: 120,
-        location: '校园东区',
-        roomTypes: '单人间、双人间',
-        imageUrl: getRandomBuildingImage()
-      },
-      {
-        id: 102,
-        name: '博雅公寓',
-        description: '紧邻图书馆，学习氛围浓厚，安静舒适',
-        roomCount: 8,
-        location: '校园北区',
-        roomTypes: '四人间、六人间',
-        imageUrl: getRandomBuildingImage()
-      },
-      {
-        id: 103,
-        name: '致远公寓',
-        description: '靠近体育场，活动便利，配有共享空间',
-        roomCount: 56,
-        location: '校园西区',
-        roomTypes: '双人间、四人间',
-        imageUrl: getRandomBuildingImage()
-      },
-      {
-        id: 104,
-        name: '和悦公寓',
-        description: '地理位置优越，环境幽静，适合学习',
-        roomCount: 0,
-        location: '校园南区',
-        roomTypes: '单人间',
-        imageUrl: getRandomBuildingImage()
-      }
-    ]
+    ElMessage.error('获取楼宇数据失败：' + (error.message || '未知错误'))
+    buildings.value = []
   }
 }
 
@@ -443,131 +417,81 @@ const loadRooms = async () => {
   rooms.value = []
   
   try {
-    // 组装API参数
+    // 准备发送到后端的所有筛选参数
     const params = {
-      buildingId: filterForm.buildingId || undefined,
-      roomType: filterForm.roomType || undefined
+      buildingId: filterForm.buildingId ? parseInt(filterForm.buildingId) : undefined,
+      roomType: filterForm.roomType ? parseInt(filterForm.roomType) : undefined,
+      floorNumber: filterForm.floorNumber ? parseInt(filterForm.floorNumber) : undefined,
+      bedStatus: filterForm.bedStatus || undefined
     }
     
-    // 调用API
-    const res = await getAvailableRooms(params.buildingId, params.roomType)
-    const apiRooms = res.data || []
+    console.log('【前端】发送筛选条件:', JSON.stringify(params))
     
-    // 转换数据格式
-    rooms.value = apiRooms.map(room => {
-      const building = buildings.value.find(b => b.id === room.buildingId) || {}
-      return {
-        id: room.id,
-        buildingId: room.buildingId,
-        buildingName: building.name || '未知楼栋',
-        roomNumber: room.roomNumber,
-        floorNumber: room.floorNumber,
-        roomTypeName: getRoomTypeName(room.roomType),
-        roomType: room.roomType,
-        bedsTotal: room.bedsTotal || 0,
-        bedsAvailable: room.bedsAvailable || 0,
-        hasAirCon: room.hasAirCon,
-        hasHeating: room.hasHeating,
-        hasBalcony: room.hasBalcony,
-        hasPrivateBath: room.hasPrivateBath,
-        area: room.area,
-        orientation: room.orientation,
-        remarks: room.remarks
-      }
-    })
+    // 调用API - 将所有筛选条件传递给后端
+    const res = await getAvailableRooms(
+      params.buildingId, 
+      params.roomType, 
+      params.floorNumber, 
+      params.bedStatus
+    )
+    console.log('【前端】API返回结果条数:', res.data ? res.data.length : 0)
     
-    // 设置总数
-    total.value = rooms.value.length
-    
-    // 如果没有数据，使用示例数据
-    if (rooms.value.length === 0) {
-      // 示例数据
-      const demoRooms = [
-        {
-          id: 1001,
-          buildingId: 101,
-          buildingName: '明德公寓',
-          roomNumber: '101',
-          floorNumber: 1,
-          roomTypeName: '单人间',
-          roomType: 1,
-          bedsTotal: 1,
-          bedsAvailable: 1,
-          hasAirCon: true,
-          hasHeating: true,
-          hasBalcony: false,
-          hasPrivateBath: true,
-          area: 12,
-          orientation: '南',
-          remarks: '安静舒适，设施齐全'
-        },
-        {
-          id: 1002,
-          buildingId: 101,
-          buildingName: '明德公寓',
-          roomNumber: '102',
-          floorNumber: 1,
-          roomTypeName: '双人间',
-          roomType: 2,
-          bedsTotal: 2,
-          bedsAvailable: 0,
-          hasAirCon: true,
-          hasHeating: true,
-          hasBalcony: true,
-          hasPrivateBath: false,
-          area: 20,
-          orientation: '南',
-          remarks: '采光良好，空间宽敞'
-        },
-        {
-          id: 1003,
-          buildingId: 102,
-          buildingName: '博雅公寓',
-          roomNumber: '201',
-          floorNumber: 2,
-          roomTypeName: '四人间',
-          roomType: 4,
-          bedsTotal: 4,
-          bedsAvailable: 2,
-          hasAirCon: true,
-          hasHeating: true,
-          hasBalcony: true,
-          hasPrivateBath: false,
-          area: 30,
-          orientation: '东南',
-          remarks: '配有独立书桌和储物柜'
+    if (res && res.data && res.data.length > 0) {
+      // 使用后端筛选后的数据
+      rooms.value = res.data.map(room => {
+        // 计算房型名称，优先使用bedsTotal
+        let roomTypeName = '未知房型';
+        const bedsTotal = room.totalBeds || 0;
+        
+        if (bedsTotal === 1) roomTypeName = '单人间';
+        else if (bedsTotal === 2) roomTypeName = '双人间';
+        else if (bedsTotal === 4) roomTypeName = '四人间';
+        else if (bedsTotal === 6) roomTypeName = '六人间';
+        else if (bedsTotal > 0) roomTypeName = `${bedsTotal}人间`;
+        
+        // 转换属性名以匹配前端展示需要
+        return {
+          id: room.id,
+          buildingId: room.buildingId,
+          buildingName: room.buildingName || '未知楼栋',
+          roomNumber: room.roomNumber,
+          floorNumber: room.floor, // 后端字段是floor
+          roomTypeName: roomTypeName, // 直接使用计算好的房型名称
+          roomType: room.roomType,
+          bedsTotal: bedsTotal,
+          bedsAvailable: room.availableBeds || 0, // 后端字段是availableBeds
+          hasAirCon: room.facilities && room.facilities.includes('空调'),
+          hasHeating: room.facilities && room.facilities.includes('暖气'),
+          hasBalcony: room.facilities && room.facilities.includes('阳台'),
+          hasPrivateBath: room.facilities && room.facilities.includes('独卫'),
+          area: room.area,
+          orientation: room.orientation || '未知',
+          remarks: room.description || '' // 后端字段是description
         }
-      ]
+      })
       
-      // 根据筛选条件过滤示例数据
-      let filteredDemoRooms = demoRooms
-      if (params.buildingId) {
-        filteredDemoRooms = filteredDemoRooms.filter(r => r.buildingId == params.buildingId)
-      }
-      if (params.roomType) {
-        filteredDemoRooms = filteredDemoRooms.filter(r => r.roomType == params.roomType)
-      }
-      
-      rooms.value = filteredDemoRooms
       total.value = rooms.value.length
+    } else {
+      // 如果没有数据，显示空结果
+      rooms.value = []
+      total.value = 0
+      ElMessage.info('未找到符合条件的房间')
     }
   } catch (error) {
     console.error('获取房间列表失败', error)
-    ElMessage.error('获取房间数据失败')
+    ElMessage.error('获取房间数据失败：' + (error.message || '未知错误'))
   } finally {
     loading.value = false
   }
 }
 
-// 根据房型ID获取房型名称
-const getRoomTypeName = (roomType) => {
-  const types = {
-    '1': '单人间',
-    '2': '双人间',
-    '4': '四人间',
-    '6': '六人间'
-  }
-  return types[roomType] || '未知房型'
+// 根据房型ID或床位数获取房型名称
+const getRoomTypeName = (roomType, bedsTotal) => {
+  if (roomType === 1) return '单人间'
+  if (roomType === 2) return '双人间'
+  if (roomType === 4) return '四人间'
+  if (roomType === 6) return '六人间'
+  return `${bedsTotal}人间`
 }
 
 onMounted(() => {
@@ -612,9 +536,28 @@ onMounted(() => {
 
 /* 筛选区域 */
 .filter-section {
-  padding: 20px 0;
-  background-color: white;
-  border-bottom: 1px solid #EBEEF5;
+  background-color: #f9fafb;
+  padding: 16px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  border: 1px solid #eaeaea;
+}
+
+.filter-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 0;
+}
+
+.filter-form .el-form-item {
+  margin-right: 20px;
+  margin-bottom: 12px;
+}
+
+.rooms-list {
+  margin-top: 16px;
 }
 
 /* 楼栋卡片 */
@@ -710,10 +653,6 @@ onMounted(() => {
 }
 
 /* 房间列表 */
-.rooms-list {
-  margin-top: 20px;
-}
-
 .pagination {
   margin-top: 24px;
   text-align: center;

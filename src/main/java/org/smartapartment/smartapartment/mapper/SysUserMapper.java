@@ -73,4 +73,36 @@ public interface SysUserMapper {
      * 选择性更新用户（只更新非null字段）
      */
     int updateSelective(SysUser user);
+    
+    /**
+     * 查询所有用户ID
+     */
+    @org.apache.ibatis.annotations.Select("SELECT id FROM sys_user WHERE status = 1 AND deleted = 0")
+    List<Long> selectAllUserIds();
+    
+    /**
+     * 查询所有管理员ID（用户类型为1-管理员或2-宿管）
+     */
+    @org.apache.ibatis.annotations.Select("SELECT id FROM sys_user WHERE user_type IN (1, 2) AND status = 1")
+    List<Long> selectAdminIds();
+    
+    /**
+     * 查询所有学生用户ID（用户类型为3-学生）
+     */
+    @org.apache.ibatis.annotations.Select("SELECT id FROM sys_user WHERE user_type = 3 AND status = 1")
+    List<Long> selectStudentUserIds();
+    
+    /**
+     * 查询指定楼栋的学生用户ID列表
+     * 通过bed表关联room表和building表
+     */
+    @org.apache.ibatis.annotations.Select("SELECT DISTINCT u.id FROM sys_user u " +
+            "INNER JOIN bed b ON u.id = b.student_id " +
+            "INNER JOIN room r ON b.room_id = r.id " +
+            "WHERE r.building_id = #{buildingId} " +
+            "AND u.user_type = 3 " +
+            "AND u.status = 1 " +
+            "AND b.bed_status = 2 " +
+            "AND b.deleted = 0")
+    List<Long> selectStudentIdsByBuildingId(@Param("buildingId") Long buildingId);
 }

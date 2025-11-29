@@ -12,6 +12,7 @@ import org.smartapartment.smartapartment.exception.BusinessException;
 import org.smartapartment.smartapartment.mapper.BedMapper;
 import org.smartapartment.smartapartment.mapper.CheckInApplicationMapper;
 import org.smartapartment.smartapartment.mapper.RoomMapper;
+import org.smartapartment.smartapartment.service.RoomService;
 import org.smartapartment.smartapartment.utils.SecurityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,7 @@ public class CheckInService {
     private final CheckInApplicationMapper applicationMapper;
     private final BedMapper bedMapper;
     private final RoomMapper roomMapper;
+    private final RoomService roomService;
     
     /**
      * 分页查询入住申请列表
@@ -165,6 +167,9 @@ public class CheckInService {
                     room.setRoomStatus(2); // 部分入住
                 }
                 roomMapper.updateById(room);
+                
+                // 清除房间相关缓存
+                roomService.updateBedStatus(roomId);
             }
         }
         
@@ -304,6 +309,9 @@ public class CheckInService {
                         room.setRoomStatus(room.getAvailableBeds() < room.getTotalBeds() ? 2 : 1); // 部分入住或空闲
                     }
                     roomMapper.updateById(room);
+                    
+                    // 清除房间相关缓存
+                    roomService.updateBedStatus(application.getAssignedRoomId());
                 }
             }
         }

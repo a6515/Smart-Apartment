@@ -68,8 +68,13 @@ public class BuildingController {
     
     @Operation(summary = "获取所有楼宇列表")
     @GetMapping("/list")
-    @RequireRole({1, 2, 3}) // 管理员、宿管、学生都可以查询楼宇列表
     public Result<?> getList() {
         return Result.success(buildingService.getList());
+    }
+    
+    @Operation(summary = "获取热门楼栋列表（按入住率排序）")
+    @GetMapping("/popular")
+    public Result<?> getPopularBuildings(@RequestParam(defaultValue = "3") Integer limit) {
+        return Result.success(buildingService.getPopularBuildings(limit));
     }
 }
