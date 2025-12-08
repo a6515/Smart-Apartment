@@ -3,7 +3,7 @@ spring:
   application:
     name: SmartApartment
   profiles:
-    active: prod  # 默认激活本地开发环境
+    active: dev  # 默认激活本地开发环境
 
   # 文件上传 (公共)
   servlet:

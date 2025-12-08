@@ -1,5 +1,8 @@
 <template>
   <div class="public-layout">
+    <!-- 移动端遮罩层（放在header外面） -->
+    <div class="mobile-overlay" :class="{ show: mobileNavVisible }" @click="closeMobileNav"></div>
+    
     <header class="header">
       <div class="container">
         <div class="logo">
@@ -7,20 +10,29 @@
           <span>智慧公寓管理系统</span>
         </div>
         
-        <nav class="nav">
-          <router-link to="/" class="nav-item home-link">
+        <!-- 移动端汉堡菜单按钮 -->
+        <button class="mobile-nav-toggle" :class="{ active: mobileNavVisible }" @click="toggleMobileNav">
+          <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </button>
+        
+        <nav class="nav" :class="{ 'mobile-nav-show': mobileNavVisible }">
+          <router-link to="/" class="nav-item home-link" @click="closeMobileNav">
             <el-icon><HomeFilled /></el-icon>首页
           </router-link>
-          <router-link to="/about" class="nav-item">
+          <router-link to="/about" class="nav-item" @click="closeMobileNav">
             <el-icon><InfoFilled /></el-icon>关于我们
           </router-link>
-          <router-link to="/rooms" class="nav-item">
+          <router-link to="/rooms" class="nav-item" @click="closeMobileNav">
             <el-icon><House /></el-icon>房源信息
           </router-link>
-          <router-link to="/news" class="nav-item">
+          <router-link to="/news" class="nav-item" @click="closeMobileNav">
             <el-icon><Document /></el-icon>新闻动态
           </router-link>
-          <router-link to="/contact" class="nav-item">
+          <router-link to="/contact" class="nav-item" @click="closeMobileNav">
             <el-icon><Phone /></el-icon>联系我们
           </router-link>
 
@@ -95,7 +107,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
 import { logout } from '@/api/auth'
@@ -117,6 +129,24 @@ import {
 
 const router = useRouter()
 const userStore = useUserStore()
+
+// 移动端导航菜单状态
+const mobileNavVisible = ref(false)
+
+// 切换移动端导航菜单
+const toggleMobileNav = () => {
+  mobileNavVisible.value = !mobileNavVisible.value
+}
+
+// 关闭移动端导航菜单
+const closeMobileNav = () => {
+  mobileNavVisible.value = false
+}
+
+// 监听路由变化，关闭菜单
+router.afterEach(() => {
+  closeMobileNav()
+})
 
 // 判断用户是否登录
 const isLoggedIn = computed(() => !!userStore.token && !!userStore.userInfo?.id)

@@ -1,6 +1,14 @@
 <template>
   <el-container class="layout-container">
-    <el-aside width="200px" class="sidebar">
+    <!-- 移动端菜单按钮 -->
+    <button class="mobile-menu-btn" @click="toggleMobileMenu">
+      <el-icon><Menu /></el-icon>
+    </button>
+    
+    <!-- 移动端遮罩层 -->
+    <div class="mobile-overlay" :class="{ show: mobileMenuVisible }" @click="closeMobileMenu"></div>
+    
+    <el-aside width="200px" class="sidebar" :class="{ 'mobile-show': mobileMenuVisible }">
       <div class="logo">
         <h3>学生端</h3>
       </div>
@@ -40,6 +48,11 @@
           <span>个人中心</span>
         </el-menu-item>
       </el-menu>
+      
+      <!-- 通知组件（移动端显示在侧边栏） -->
+      <div class="notification-wrapper">
+        <WebSocketNotification />
+      </div>
     </el-aside>
 
     <el-container>
@@ -48,6 +61,11 @@
           <span class="page-title">{{ $route.meta.title }}</span>
         </div>
         <div class="header-right">
+          <!-- PC端通知图标 -->
+          <div class="header-notification">
+            <WebSocketNotification />
+          </div>
+          
           <el-dropdown @command="handleCommand" trigger="hover">
             <span class="user-info">
               <el-icon><Avatar /></el-icon>
@@ -71,13 +89,31 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
 import { logout } from '@/api/auth'
+import WebSocketNotification from '@/components/WebSocketNotification.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
+const mobileMenuVisible = ref(false)
+
+// 切换移动端菜单
+const toggleMobileMenu = () => {
+  mobileMenuVisible.value = !mobileMenuVisible.value
+}
+
+// 关闭移动端菜单
+const closeMobileMenu = () => {
+  mobileMenuVisible.value = false
+}
+
+// 监听路由变化，关闭菜单
+router.afterEach(() => {
+  closeMobileMenu()
+})
 
 const handleCommand = async (command) => {
   if (command === 'home') {
@@ -131,6 +167,17 @@ const handleCommand = async (command) => {
   padding: 0 20px;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-notification {
+  display: flex;
+  align-items: center;
+}
+
 .page-title {
   font-size: 18px;
   font-weight: 500;
@@ -143,9 +190,34 @@ const handleCommand = async (command) => {
   gap: 8px;
 }
 
+/* 侧边栏通知（移动端显示） */
+.notification-wrapper {
+  display: none;
+  padding: 15px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 .main-content {
   background-color: #f0f2f5;
   padding: 20px;
   overflow-y: auto;
+}
+
+/* PC端显示header中的通知，隐藏侧边栏的 */
+@media screen and (min-width: 769px) {
+  .sidebar .notification-wrapper {
+    display: none;
+  }
+}
+
+/* 移动端显示侧边栏中的通知，隐藏header的 */
+@media screen and (max-width: 768px) {
+  .sidebar .notification-wrapper {
+    display: block;
+  }
+  
+  .header-notification {
+    display: none;
+  }
 }
 </style>

@@ -12,7 +12,7 @@
         <template #header>
           <span>当前房间信息</span>
         </template>
-        <el-descriptions :column="2" border>
+        <el-descriptions :column="2" border class="room-info-descriptions">
           <el-descriptions-item label="楼宇">{{ currentRoom.buildingName }}</el-descriptions-item>
           <el-descriptions-item label="房间号">{{ currentRoom.roomNumber }}</el-descriptions-item>
           <el-descriptions-item label="床位号">{{ currentRoom.bedNumber }}</el-descriptions-item>

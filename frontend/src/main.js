@@ -8,6 +8,8 @@ import router from './router'
 import { initWebSocket } from './utils/websocket'
 // 引入iOS风格通知样式
 import './styles/ios-notification.css'
+// 引入优雅的消息通知样式
+import './styles/notification.css'
 
 const app = createApp(App)
 const pinia = createPinia()
