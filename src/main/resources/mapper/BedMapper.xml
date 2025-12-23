@@ -2,22 +2,22 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.smartapartment.smartapartment.mapper.BedMapper">
+<mapper namespace="org.smartapartment.mapper.BedMapper">
 
-    <select id="selectByRoomId" resultType="org.smartapartment.smartapartment.entity.Bed">
+    <select id="selectByRoomId" resultType="org.smartapartment.entity.Bed">
         SELECT * FROM bed
         WHERE room_id = #{roomId}
         AND deleted = 0
         ORDER BY bed_number
     </select>
 
-    <select id="selectById" resultType="org.smartapartment.smartapartment.entity.Bed">
+    <select id="selectById" resultType="org.smartapartment.entity.Bed">
         SELECT * FROM bed
         WHERE id = #{id}
         AND deleted = 0
     </select>
 
-    <insert id="insert" parameterType="org.smartapartment.smartapartment.entity.Bed"
+    <insert id="insert" parameterType="org.smartapartment.entity.Bed"
             useGeneratedKeys="true" keyProperty="id">
         INSERT INTO bed (
             room_id, bed_number, bed_status, student_id, student_name,
@@ -46,12 +46,27 @@
         WHERE id = #{id}
     </update>
 
-    <select id="selectAvailableByRoomId" resultType="org.smartapartment.smartapartment.entity.Bed">
+    <select id="selectAvailableByRoomId" resultType="org.smartapartment.entity.Bed">
         SELECT * FROM bed
         WHERE room_id = #{roomId}
         AND bed_status = 1
         AND deleted = 0
         ORDER BY bed_number
+    </select>
+
+    <select id="selectResidentIdsByRoomId" resultType="java.lang.Long">
+        SELECT student_id FROM bed 
+        WHERE room_id = #{roomId} 
+        AND bed_status = 2 
+        AND deleted = 0
+    </select>
+
+    <select id="selectRoomIdByStudentId" resultType="java.lang.Long">
+        SELECT room_id FROM bed 
+        WHERE student_id = #{studentId} 
+        AND bed_status = 2 
+        AND deleted = 0 
+        LIMIT 1
     </select>
 
 </mapper>

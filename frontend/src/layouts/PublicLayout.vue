@@ -7,7 +7,7 @@
       <div class="container">
         <div class="logo">
           <el-icon :size="28"><OfficeBuilding /></el-icon>
-          <span>智慧公寓管理系统</span>
+          <span>智慧公寓</span>
         </div>
         
         <!-- 移动端汉堡菜单按钮 -->

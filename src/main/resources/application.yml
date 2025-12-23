@@ -3,39 +3,53 @@ spring:
   application:
     name: SmartApartment
   profiles:
-    active: dev  # 默认激活本地开发环境
+    active: dev
 
-  # 文件上传 (公共)
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 50MB
 
-# 服务端口 (公共，或者你想生产环境不一样也可以拆开)
 server:
   port: 9090
 
-# MyBatis配置 (公共)
+# ----------------- 修改重点 1：MyBatis 配置 -----------------
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
   type-aliases-package: org.smartapartment.smartapartment.entity
   configuration:
     map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 🔴 关键操作：把下面这行注释掉（加 # 号）或者直接删除！
+    # 这样 MyBatis 才会把日志交给 Spring Boot 管理，logging 配置才能生效
+    # log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
-# PageHelper (公共)
+# ----------------- 修改重点 2：新增日志配置 -----------------
+logging:
+  level:
+    # 全局日志级别设为 INFO (清净模式)
+    root: INFO
+
+    # 你的业务代码包 (如果你想看自己打印的日志，可以设为 DEBUG)
+    org.smartapartment: INFO
+
+    # SQL 语句控制 (MyBatis mapper 包)
+    # 设为 INFO = 不打印 SQL
+    # 设为 DEBUG = 打印 SQL
+    org.smartapartment.mapper: INFO
+
+# PageHelper (保持不变)
 pagehelper:
   helper-dialect: mysql
   reasonable: true
   support-methods-arguments: true
   params: count=countSql
 
-# JWT配置 (公共)
+# JWT配置 (保持不变)
 jwt:
   secret: SmartApartmentSecretKey2024GraduationDesign
   expiration: 604800000
 
-# Knife4j (公共)
+# Knife4j (保持不变)
 springdoc:
   api-docs:
     enabled: true

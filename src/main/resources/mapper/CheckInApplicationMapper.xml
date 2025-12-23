@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.smartapartment.smartapartment.mapper.CheckInApplicationMapper">
+<mapper namespace="org.smartapartment.mapper.CheckInApplicationMapper">
 
-    <select id="selectPage" resultType="org.smartapartment.smartapartment.entity.CheckInApplication">
+    <select id="selectPage" resultType="org.smartapartment.entity.CheckInApplication">
         select
             cia.id,
             cia.student_id as studentId,
@@ -54,7 +54,7 @@
         order by cia.create_time desc
     </select>
 
-    <insert id="insert" parameterType="org.smartapartment.smartapartment.entity.CheckInApplication" 
+    <insert id="insert" parameterType="org.smartapartment.entity.CheckInApplication"
             useGeneratedKeys="true" keyProperty="id">
         INSERT INTO check_in_application (
             student_id,
@@ -91,7 +91,7 @@
         )
     </insert>
 
-    <select id="selectById" resultType="org.smartapartment.smartapartment.entity.CheckInApplication">
+    <select id="selectById" resultType="org.smartapartment.entity.CheckInApplication">
         SELECT 
             id,
             student_id as studentId,

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.smartapartment.smartapartment.mapper.BuildingMapper">
+<mapper namespace="org.smartapartment.mapper.BuildingMapper">
     
     <!-- 结果映射 -->
-    <resultMap id="BaseResultMap" type="org.smartapartment.smartapartment.entity.Building">
+    <resultMap id="BaseResultMap" type="org.smartapartment.entity.Building">
         <id column="id" property="id"/>
         <result column="building_name" property="buildingName"/>
         <result column="building_code" property="buildingCode"/>
@@ -42,7 +42,7 @@
     </select>
     
     <!-- 插入楼宇 -->
-    <insert id="insert" parameterType="org.smartapartment.smartapartment.entity.Building" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="org.smartapartment.entity.Building" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO building (
             building_name, building_code, building_type, floors, total_rooms, 
             address, manager_id, manager_name, manager_phone, description, status, 
